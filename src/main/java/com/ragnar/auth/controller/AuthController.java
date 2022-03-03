@@ -49,7 +49,7 @@ public class AuthController extends ExceptionHandler{
 	@PostMapping("/signin")
 	public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody LoginDto loginDto) {
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginDto.getUsernameOrEmail(), loginDto.getPassword()));
+				new UsernamePasswordAuthenticationToken(loginDto.getUsename(), loginDto.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
