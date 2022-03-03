@@ -43,7 +43,7 @@ public class User implements UserDetails {
 	@Enumerated(EnumType.STRING)
 	private AppUserRole roles;
 
-	private boolean locked;
+	private boolean isNotlocked;
 
 	private boolean enabled;
 
@@ -71,7 +71,7 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return !locked;
+		return isNotlocked;
 	}
 
 	@Override
