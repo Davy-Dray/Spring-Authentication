@@ -46,6 +46,7 @@ public class AuthController extends ExceptionHandler {
 
 	@PostMapping("/signin")
 	public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody LoginDto loginDto) {
+		//authenticate the user
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
 
@@ -60,15 +61,15 @@ public class AuthController extends ExceptionHandler {
 	@PostMapping("/signup")
 	public void registerUser(@Valid @RequestBody SignupDto signUpDto) throws UsernameTaken, EmailTaken {
 
-		// add check for username exists in a DB
+		//  check for username exists in a DB
 		if (userRepository.existsByUsername(signUpDto.getUsername())) {
 			
 			throw new UsernameTaken("username taken");
 		}
 
-		// add check for email exists in DB
+		//  check for email exists in DB
 		if (userRepository.existsByEmail(signUpDto.getEmail())) {
-			throw new EmailTaken("username taken");
+			throw new EmailTaken("email taken");
 		}
 
 		// create user object
