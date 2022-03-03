@@ -5,7 +5,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,10 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ragnar.auth.dto.JWTAuthResponse;
 import com.ragnar.auth.dto.LoginDto;
-import com.ragnar.auth.dto.MessageResponse;
 import com.ragnar.auth.dto.SignupDto;
 import com.ragnar.auth.enums.AppUserRole;
+import com.ragnar.auth.exception.EmailTaken;
 import com.ragnar.auth.exception.ExceptionHandler;
+import com.ragnar.auth.exception.UsernameTaken;
 import com.ragnar.auth.model.User;
 import com.ragnar.auth.repository.UserRepository;
 import com.ragnar.auth.util.TokenProvider;
@@ -58,16 +58,17 @@ public class AuthController extends ExceptionHandler {
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupDto signUpDto) {
+	public void registerUser(@Valid @RequestBody SignupDto signUpDto) throws UsernameTaken, EmailTaken {
 
 		// add check for username exists in a DB
 		if (userRepository.existsByUsername(signUpDto.getUsername())) {
-			return new ResponseEntity<>(new MessageResponse("Username taken!"), HttpStatus.BAD_REQUEST);
+			
+			throw new UsernameTaken("username taken");
 		}
 
 		// add check for email exists in DB
 		if (userRepository.existsByEmail(signUpDto.getEmail())) {
-			return new ResponseEntity<>(new MessageResponse("Email is already taken!"), HttpStatus.BAD_REQUEST);
+			throw new EmailTaken("username taken");
 		}
 
 		// create user object
@@ -80,7 +81,6 @@ public class AuthController extends ExceptionHandler {
 
 		userRepository.save(user);
 
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 
 	}
 

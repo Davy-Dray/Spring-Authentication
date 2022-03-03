@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
+
+
 @RestControllerAdvice
 public class ExceptionHandler implements ErrorController {
 	private Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
@@ -52,6 +54,7 @@ public class ExceptionHandler implements ErrorController {
 
 	}
 
+	
 	@org.springframework.web.bind.annotation.ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<HttpResponse> methodNotsupportedException(HttpRequestMethodNotSupportedException exception) {
 		HttpMethod supportedMethod = Objects.requireNonNull(exception.getSupportedHttpMethods()).iterator().next();
@@ -71,6 +74,20 @@ public class ExceptionHandler implements ErrorController {
 	public ResponseEntity<HttpResponse> accessDeniedException() {
 
 		return getResponse(HttpStatus.FORBIDDEN, NOT_AUTHORIZED);
+
+	}
+
+	@org.springframework.web.bind.annotation.ExceptionHandler(EmailTaken.class)
+	public ResponseEntity<HttpResponse> emailExistException(EmailTaken exception) {
+
+		return getResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+
+	}
+
+	@org.springframework.web.bind.annotation.ExceptionHandler(UsernameTaken.class)
+	public ResponseEntity<HttpResponse> usernameExistException(UsernameTaken exception) {
+
+		return getResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
 
 	}
 
