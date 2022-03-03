@@ -1,6 +1,6 @@
 package com.ragnar.auth.controller;
 
-import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,21 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ragnar.auth.dto.JWTAuthResponse;
 import com.ragnar.auth.dto.LoginDto;
+import com.ragnar.auth.dto.MessageResponse;
 import com.ragnar.auth.dto.SignupDto;
+import com.ragnar.auth.enums.AppUserRole;
 import com.ragnar.auth.exception.ExceptionHandler;
-import com.ragnar.auth.model.Role;
 import com.ragnar.auth.model.User;
-import com.ragnar.auth.repository.RoleRepository;
 import com.ragnar.auth.repository.UserRepository;
 import com.ragnar.auth.util.TokenProvider;
 
 @RestController
 @RequestMapping({ "/", "/user" })
-public class AuthController extends ExceptionHandler{
+public class AuthController extends ExceptionHandler {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -43,13 +44,10 @@ public class AuthController extends ExceptionHandler{
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private RoleRepository roleRepository;
-
 	@PostMapping("/signin")
 	public ResponseEntity<JWTAuthResponse> authenticateUser(@RequestBody LoginDto loginDto) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginDto.getUsename(), loginDto.getPassword()));
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -64,12 +62,12 @@ public class AuthController extends ExceptionHandler{
 
 		// add check for username exists in a DB
 		if (userRepository.existsByUsername(signUpDto.getUsername())) {
-			return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new MessageResponse("Username taken!"), HttpStatus.BAD_REQUEST);
 		}
 
 		// add check for email exists in DB
 		if (userRepository.existsByEmail(signUpDto.getEmail())) {
-			return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new MessageResponse("Email is already taken!"), HttpStatus.BAD_REQUEST);
 		}
 
 		// create user object
@@ -78,13 +76,17 @@ public class AuthController extends ExceptionHandler{
 		user.setUsername(signUpDto.getUsername());
 		user.setEmail(signUpDto.getEmail());
 		user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
-
-		Role roles = roleRepository.findByName("ROLE_ADMIN").get();
-		user.setRoles(Collections.singleton(roles));
+		user.setRoles(AppUserRole.USER);
 
 		userRepository.save(user);
 
-		return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 
+	}
+
+	@GetMapping("/users")
+	public List<User> getUsers() {
+
+		return userRepository.findAll();
 	}
 }
