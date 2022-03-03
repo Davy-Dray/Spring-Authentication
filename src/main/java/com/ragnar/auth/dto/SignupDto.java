@@ -7,15 +7,15 @@ import lombok.Data;
 @Data
 public class SignupDto {
 
-	@NotBlank(message = "firstName is mandatory")
+	@NotBlank(message = "Name is mandatory")
 	private String name;
 	
-	@NotBlank(message = "firstName is mandatory")
+	@NotBlank(message = "username is mandatory")
 	private String username;
 	
-	@NotBlank(message = "firstName is mandatory")
+	@NotBlank(message = "email is mandatory")
 	private String email;
 	
-	@NotBlank(message = "firstName is mandatory")
+	@NotBlank(message = "password is mandatory")
 	private String password;
 }
